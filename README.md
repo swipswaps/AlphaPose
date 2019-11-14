@@ -6,24 +6,32 @@
 
 
 ## AlphaPose
-[Alpha Pose](http://www.mvig.org/research/alphapose.html) is an accurate multi-person pose estimator, which is the **first open-source system that achieves 70+ mAP (72.3 mAP) on COCO dataset and 80+ mAP (82.1 mAP) on MPII dataset.** 
+[Alpha Pose](http://www.mvig.org/research/alphapose.html) is an accurate multi-person pose estimator, which is the **first real-time** open-source system that achieves **70+ mAP (72.3 mAP)** on COCO dataset and **80+ mAP (82.1 mAP)** on MPII dataset.** 
 To match poses that correspond to the same person across frames, we also provide an efficient online pose tracker called Pose Flow. It is the **first open-source online pose tracker that achieves both 60+ mAP (66.5 mAP) and 50+ MOTA (58.3 MOTA) on PoseTrack Challenge dataset.**
 
 
 ## News!
-Now beta [**PyTorch** version](https://github.com/MVIG-SJTU/AlphaPose/tree/pytorch) of AlphaPose is released! Stable version will be ready in two days. Currently AlphaPose runs at about **5 fps**. Realtime version is coming very soon. Stay tuned!
+- Apr 2019: [**MXNet** version](https://github.com/MVIG-SJTU/AlphaPose/tree/mxnet) of AlphaPose is released! It runs at **23 fps** on COCO validation set using a single Nvidia 1080Ti GPU!
+- Feb 2019: [CrowdPose](https://github.com/MVIG-SJTU/AlphaPose/blob/pytorch/doc/CrowdPose.md) is integrated into AlphaPose Now!
+- Dec 2018: [General version](https://github.com/MVIG-SJTU/AlphaPose/tree/master/PoseFlow) of PoseFlow is released! 3X Faster and support pose tracking results visualization!
+- Sep 2018: [**PyTorch** version](https://github.com/MVIG-SJTU/AlphaPose/tree/pytorch) of AlphaPose is released! It runs at **20 fps** on COCO validation set (4.6 people per image on average) and achieves 71 mAP using a single Nvidia 1080Ti GPU!
 
 ## Contents
-1. [AlphaPose](#alphapose)
-2. [Results](#results)
-3. [Installation](#installation)
-4. [Quick Start](#quick-start)
-5. [Output](#output)
-6. [Speeding Up Alpha Pose](#speeding-up-alpha-pose)
-7. [Feedbacks](#feedbacks)
-8. [Contributors](#contributors)
-9. [Citation](#citation)
-10. [License](#license)
+- [AlphaPose](#alphapose)
+- [News!](#news)
+- [Contents](#contents)
+- [Results](#results)
+  - [Pose Estimation](#pose-estimation)
+  - [Pose Tracking](#pose-tracking)
+  - [CrowdPose](#crowdpose)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Output](#output)
+- [Speeding Up AlphaPose](#speeding-up-alphapose)
+- [Feedbacks](#feedbacks)
+- [Contributors](#contributors)
+- [Citation](#citation)
+- [License](#license)
 
 
 
@@ -58,6 +66,7 @@ Results on MPII full test set:
 ### Pose Tracking
 <p align='center'>
     <img src="doc/posetrack.gif", width="360">
+    <img src="doc/posetrack2.gif", width="344">
 </p>
 
 Results on PoseTrack Challenge validation set:
@@ -68,23 +77,55 @@ Results on PoseTrack Challenge validation set:
 | Method | Head mAP | Shoulder mAP | Elbow mAP | Wrist mAP | Hip mAP | Knee mAP | Ankle mAP | Total mAP |
 |:-------|:-----:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|
 | Detect-and-Track(FAIR) | **67.5** | 70.2 | 62 | 51.7 | 60.7 | 58.7 | 49.8 | 60.6 |
-| **AlphaPose+PoseFlow** | 66.7 | **73.3** | **68.3** | **61.1** | **67.5** | **67.0** | **61.3** | **66.5** |
+| **AlphaPose** | 66.7 | **73.3** | **68.3** | **61.1** | **67.5** | **67.0** | **61.3** | **66.5** |
 
 </center>
 
 2. Task3: Pose Tracking (MOTA)
 <center>
 
-| Method | Head MOTA | Shoulder MOTA | Elbow MOTA | Wrist MOTA | Hip MOTA | Knee MOTA | Ankle MOTA | Total MOTA | Total MOTP|
-|:-------|:-----:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|
-| Detect-and-Track(FAIR) | **61.7** | 65.5 | 57.3 | 45.7 | 54.3 | 53.1 | 45.7 | 55.2 | 61.5 |
-| **AlphaPose+PoseFlow** | 59.8 | **67.0** | **59.8** | **51.6** | **60.0** | **58.4** | **50.5** | **58.3** | **67.8**|
+| Method | Head MOTA | Shoulder MOTA | Elbow MOTA | Wrist MOTA | Hip MOTA | Knee MOTA | Ankle MOTA | Total MOTA | Total MOTP| Speed(FPS) |
+|:-------|:-----:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|:-------:|
+| Detect-and-Track(FAIR) | **61.7** | 65.5 | 57.3 | 45.7 | 54.3 | 53.1 | 45.7 | 55.2 | 61.5 |Unknown|
+| **PoseFlow(DeepMatch)** | 59.8 | **67.0** | 59.8 | 51.6 | **60.0** | **58.4** | **50.5** | **58.3** | **67.8**|8|
+| **PoseFlow(OrbMatch)** | 59.0 | 66.8 | **60.0** | **51.8** | 59.4 | **58.4** | 50.3 | 58.0 | 62.2|24|
 
 </center>
 
 *Note: Please read [PoseFlow/README.md](PoseFlow/) for details.*
 
+### CrowdPose
+<p align='center'>
+    <img src="doc/crowdpose.gif", width="360">
+</p>
+
+**Results on CrowdPose Validation:**
+
+*Compare with state-of-the-art methods*
+<center>
+
+| Method | AP @0.5:0.95 | AP @0.5 | AP @0.75 | AR @0.5:0.95 | AR @0.5 | AR @0.75 |
+|:-------|:-----:|:-------:|:-------:|:-------:|:-------:|:-------:|
+| Detectron (Mask R-CNN) | 57.2 | 83.5 | 60.3 | 65.9 | 89.3 | 69.4 |
+| Simple Pose (Xiao *et al.*) | 60.8 | 81.4 | 65.7 | 67.3 | 86.3 | 71.8 |
+| **Ours** | **66.0** | **84.2** | **71.5** | **72.7** | **89.5** | **77.5** |
+
+</center>
+
+*Compare with open-source systems*
+<center>
+
+| Method | AP @*Easy* | AP @*Medium* | AP @*Hard* | FPS |
+|:-------|:-----:|:-------:|:-------:|:-------:|
+| OpenPose (CMU-Pose) | 62.7 | 48.7 | 32.3 | 5.3 |
+| Detectron (Mask R-CNN) | 69.4 | 57.9 | 45.8 | 2.9 |
+| **Ours** ([**PyTorch** branch](https://github.com/MVIG-SJTU/AlphaPose/tree/pytorch)) | **75.5** | **66.3** | **57.4** | **10.1** |
+
+*Note: Please read [doc/CrowdPose.md](https://github.com/MVIG-SJTU/AlphaPose/blob/pytorch/doc/CrowdPose.md) for details.*
+
 ## Installation
+***Note: For new users or users that are not familiar with TensorFlow or Torch, we suggest using the [**PyTorch** version](https://github.com/MVIG-SJTU/AlphaPose/tree/pytorch) since it's more user-friendly and runs faster.***
+
 1. Get the code and build related modules.
   ```Shell
   git clone https://github.com/MVIG-SJTU/AlphaPose.git
@@ -155,15 +196,13 @@ Please cite these papers in your publications if it helps your research:
       year={2017}
     }
 
-    @ARTICLE{2018arXiv180200977X,
-      author = {Xiu, Yuliang and Li, Jiefeng and Wang, Haoyu and Fang, Yinghong and Lu, Cewu},
+    @inproceedings{xiu2018poseflow,
       title = {{Pose Flow}: Efficient Online Pose Tracking},
-      journal = {ArXiv e-prints},
-      eprint = {1802.00977},
+      author = {Xiu, Yuliang and Li, Jiefeng and Wang, Haoyu and Fang, Yinghong and Lu, Cewu},
+      booktitle={BMVC},
       year = {2018}
     }
 
 
-
 ## License
-AlphaPose is freely available for free non-commercial use, and may be redistributed under these conditions. For commercial queries, contact [Cewu Lu](http://www.mvig.org/)
+AlphaPose is freely available for free non-commercial use, and may be redistributed under these conditions. For commercial queries, please drop an e-mail at mvig.alphapose[at]gmail[dot]com and cc lucewu[[at]sjtu[dot]edu[dot]cn. We will send the detail agreement to you.
